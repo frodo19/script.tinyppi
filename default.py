@@ -1,9 +1,10 @@
+import font_installer
+import playerprops
 import sys
-import xbmcgui
+import threading
 import xbmc
 import xbmcaddon
-import playerprops
-import threading
+import xbmcgui
 
 ADDON = xbmcaddon.Addon()
 ADDON_PATH = ADDON.getAddonInfo('path')
