@@ -372,7 +372,7 @@
 					<control type="label">
 						<left>240</left>
 						<top>185</top>
-						<label>[UPPERCASE]$INFO[VideoPlayer.AudioLanguage][/UPPERCASE]</label>
+						<label>[UPPERCASE]$INFO[VideoPlayer.AudioLanguage][/UPPERCASE]$INFO[Window().Property(AudioNameVar), | ]</label>
 						<font>font10</font>
 						<scroll>true</scroll>
 						<textcolor>e7ededed</textcolor>
@@ -398,7 +398,7 @@
 					<control type="label">
 						<left>240</left>
 						<top>215</top>
-						<label>$INFO[Window().Property(SubtitleVar)] $INFO[Window().Property(SubtitleCodecVar),(,)]</label>
+						<label>[UPPERCASE]$INFO[VideoPlayer.SubtitlesLanguage][/UPPERCASE]$INFO[Window().Property(SubtitleNameVar), | ] $INFO[Window().Property(SubtitleCodecVar),(,)]</label>
 						<font>font10</font>
 						<scroll>true</scroll>
 						<textcolor>e7ededed</textcolor>
