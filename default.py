@@ -62,7 +62,10 @@ class TinyPPIDialog(xbmcgui.WindowXMLDialog):
         if time.time() - self._opened_at < 0.3:
             return
 
-        self.close_dialog()
+        action_id = action.getId()
+
+        if action_id in [xbmcgui.ACTION_PREVIOUS_MENU, xbmcgui.ACTION_NAV_BACK]:
+            self.close_dialog()
 
     def close_dialog(self):
         self._running = False
@@ -81,25 +84,26 @@ def open_tinyppi():
 
     global DIALOG_LOCK
 
-    if DIALOG_LOCK:
-        return
-
+    win = xbmcgui.Window(10000)
     player = xbmc.Player()
 
     if not xbmc.getCondVisibility("Window.IsActive(fullscreenvideo)"):
-        xbmc.log("TinyPPI: not in fullscreen video", xbmc.LOGINFO)
         return
 
     if not player.isPlaying():
-        xbmc.log("TinyPPI: nothing is playing", xbmc.LOGINFO)
         return
 
-    if xbmcgui.Window(10000).getProperty(WINDOW_PROP) == "true":
-        xbmc.log("TinyPPI already open", xbmc.LOGINFO)
+    if win.getProperty(WINDOW_PROP) == "true":
+        xbmc.log("TinyPPI: TOGGLE close", xbmc.LOGINFO)
+
+        xbmc.executebuiltin("Action(Back)")
         return
 
-    xbmcgui.Window(10000).setProperty(WINDOW_PROP, "true")
-    xbmcgui.Window(10000).setProperty(SKIN_PROP, "true")
+    if DIALOG_LOCK:
+        return
+
+    win.setProperty(WINDOW_PROP, "true")
+    win.setProperty(SKIN_PROP, "true")
 
     try:
         dialog = TinyPPIDialog(
@@ -114,16 +118,16 @@ def open_tinyppi():
 
     finally:
         DIALOG_LOCK = True
-        xbmc.Monitor().waitForAbort(0.3)
+        xbmc.Monitor().waitForAbort(0.2)
         DIALOG_LOCK = False
 
-        xbmcgui.Window(10000).clearProperty(WINDOW_PROP)
-        xbmcgui.Window(10000).clearProperty(SKIN_PROP)
+        win.clearProperty(WINDOW_PROP)
+        win.clearProperty(SKIN_PROP)
 
 
 if __name__ == '__main__':
 
-    args = sys.argv[1:] if len(sys.argv) > 1 else []
+    args = sys.argv[1:] if len(sys.argv) > 0 else []
 
     if 'dialog' in args:
         import dialog
