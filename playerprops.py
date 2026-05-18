@@ -20,6 +20,35 @@ def _clean(val):
 # Video
 # ---------------------------------------------------------------------------
 
+_FEL_CACHE = {"ts": 0, "fel": None}
+
+_VIDEO_CODEC_MAP = {
+    "av1": "AV1",
+    "avc1": "AVC1",
+    "div3": "DivX",
+    "divx": "DivX",
+    "dx50": "DivX",
+    "flv": "FLV",
+    "h264": "H.264",
+    "hev1": "H.265",
+    "hevc": "H.265",
+    "hvc1": "H.265",
+    "mpeg1": "MPEG1",
+    "mpeg2": "MPEG2",
+    "mpeg2video": "MPEG2",
+    "mp4v": "MPEG4",
+    "mpeg4": "MPEG4",
+    "theora": "Theora",
+    "vc1": "VC1",
+    "vc-1": "VC1",
+    "wvc1": "VC1",
+    "vp8": "VP8",
+    "vp9": "VP9",
+    "wmv": "WMV",
+    "wmv3": "WMV",
+    "xvid": "XviD",
+}
+
 def get_VideoDecoderVar():
     if _cond("Player.Process(videohwdecoder)"):
         return "HW"
@@ -100,9 +129,6 @@ def get_DisplayModeVar():
 
     val = str(val).strip()
 
-    # Amlogic may insert spaces within the Hz value for 3-digit rates
-    # (e.g. "1920x1080p 1 00hz" for 100 Hz, "1920x1080p 1 20hz" for 120 Hz).
-    # Collapse all internal whitespace so the regex always sees a compact string.
     compact = re.sub(r"\s+", "", val)
 
     match = re.match(
@@ -111,7 +137,7 @@ def get_DisplayModeVar():
         re.IGNORECASE,
     )
     if not match:
-        return val  # return original (with spacing) if format is unrecognised
+        return val
 
     res, scan, raw_fps = match.groups()
     norm_fps = _normalize_fps(raw_fps)
@@ -201,25 +227,9 @@ def get_HdrTypeVar():
         return "HLG"
 
     return val
-    
-    
-# --- Optional fallback for CoreELEC NO-branch (S905X4/S905X5) + Kodi 22 ---
-# On some hardware/branch combos (notably Ugoos AM9 Pro / S905X5 on Piers nightly
-# with jellyfin-kodi stream-mode playback), Kodi's `VideoPlayer.HdrDetail` infolabel
-# returns an empty string during DV Profile 7 playback even though the kernel-side
-# DV pipeline is fully active (verified via /sys/class/amdolby_vision/* and dmesg).
-# This helper provides a kernel-state fallback that only confirms FEL when the
-# Amlogic kernel actively logs `enable_fel 1` + `enable_mel 1` (which fire together
-# for Profile 7 FEL). It does NOT try to distinguish Profile 7 MEL from Profile 8
-# because both produce the same both-zero pattern on this branch.
-
-_FEL_CACHE = {"ts": 0, "fel": None}
 
 
 def _get_fel_from_dmesg():
-    """Most-recent enable_fel/enable_mel state from kernel ring buffer.
-    Returns True only if both signals are 1 (confirmed Profile 7 FEL).
-    Cached 5 seconds to avoid hammering dmesg during the 1s poll loop."""
     import subprocess, time
     now = time.time()
     if now - _FEL_CACHE["ts"] < 5:
@@ -246,8 +256,6 @@ def _get_fel_from_dmesg():
 def get_HdrDetailVar():
     raw = _info("VideoPlayer.HdrDetail")
 
-    # Primary path: Kodi populates HdrDetail (NG-branch / Kodi 21 / direct paths).
-    # Format is typically "7FEL" / "7MEL" — color-code the suffix.
     if raw:
         lines = str(raw).splitlines()
         out = []
@@ -272,10 +280,6 @@ def get_HdrDetailVar():
 
         return "\n".join(out)
 
-    # Fallback for NO-branch / Kodi 22 / stream-mode playback where Kodi's
-    # HdrDetail label stays empty. Only confirms FEL when kernel signals are
-    # unambiguous; stays silent for MEL/Profile 8 since they cannot be reliably
-    # distinguished from the kernel state on this branch.
     if "dolby" in str(_info("VideoPlayer.HdrType")).lower():
         if _get_fel_from_dmesg() is True:
             return "7 [COLOR palegreen]FEL[/COLOR]"
@@ -303,10 +307,52 @@ def get_GamutVar():
 
     return parts[1] if len(parts) > 1 else ""
 
+def get_VideoCodecVar():
+    codec = _info("VideoPlayer.VideoCodec")
+
+    if not codec:
+        return ""
+
+    codec = str(codec).lower().strip()
+
+    return _VIDEO_CODEC_MAP.get(codec, codec.upper())
+
 
 # ---------------------------------------------------------------------------
 # Subtitle
 # ---------------------------------------------------------------------------
+
+_SUBTITLE_CODEC_MAP = {
+    "ass": "ASS",
+    "dvb_subtitle": "DVB-SUB",
+    "dvb_teletext": "DVB-Text",
+    "dvd_subtitle": "VobSub",
+    "hdmv_pgs_subtitle": "PGS",
+    "microdvd": "MicroDVD",
+    "mov_text": "Timed Text",
+    "mpl2": "MPL2",
+    "realtext": "RealText",
+    "sami": "SAMI",
+    "srt": "SubRip",
+    "ssa": "SSA",
+    "subrip": "Subrip",
+    "text": "Text",
+    "ttml": "TTML",
+    "vplayer": "VPlayer",
+    "webvtt": "WebVTT",
+    "xsub": "XSUB",
+}
+
+
+def get_SubtitleCodecVar():
+    codec = _info("VideoPlayer.SubtitleCodec")
+
+    if not codec:
+        return ""
+
+    codec = str(codec).lower().strip()
+
+    return _SUBTITLE_CODEC_MAP.get(codec, codec.upper())
 
 
 def get_SubtitleVar():
@@ -477,10 +523,12 @@ def update_properties(window):
     window.setProperty("HdrDetailVar",          get_HdrDetailVar())
     window.setProperty("ModeVar",               get_ModeVar())
     window.setProperty("GamutVar",              get_GamutVar())
+    window.setProperty("VideoCodecVar",         get_VideoCodecVar())
     window.setProperty("AudioCodecVar",         get_AudioCodecVar())
     window.setProperty("AudioCodecSpatialVar",  get_AudioCodecSpatialVar())
     window.setProperty("AudioChannelsVar",      get_AudioChannelsVar())
     window.setProperty("AudioSampleRateVar",    get_AudioSampleRateVar())
     window.setProperty("AudioChannelsInputVar", get_AudioChannelsInputVar())
+    window.setProperty("SubtitleCodecVar",      get_SubtitleCodecVar())
     window.setProperty("SubtitleVar",           get_SubtitleVar())
     window.setProperty("CpuUsageVar",           get_CpuUsageVar())
