@@ -2,6 +2,7 @@ import font_installer
 import playerprops
 import sys
 import threading
+import time
 import xbmc
 import xbmcaddon
 import xbmcgui
@@ -12,6 +13,8 @@ ADDON_PATH = ADDON.getAddonInfo('path')
 WINDOW_PROP = "TinyPPI.Running"
 SKIN_PROP = "TinyPPI.Active"
 
+DIALOG_LOCK = False
+
 
 class TinyPPIDialog(xbmcgui.WindowXMLDialog):
 
@@ -19,9 +22,12 @@ class TinyPPIDialog(xbmcgui.WindowXMLDialog):
         super().__init__(*args, **kwargs)
         self._running = False
         self.monitor = xbmc.Monitor()
+        self._opened_at = 0
 
     def onInit(self):
         self._running = True
+        self._opened_at = time.time()
+
         playerprops.update_properties(self)
         self._start_update_loop()
 
@@ -49,19 +55,18 @@ class TinyPPIDialog(xbmcgui.WindowXMLDialog):
         self.close_dialog()
 
     def onClick(self, controlId):
-        if controlId == 9000:
-            self.close_dialog()
+        self.close_dialog()
 
     def onAction(self, action):
-        if action.getId() in (
-            xbmcgui.ACTION_PREVIOUS_MENU,
-            xbmcgui.ACTION_NAV_BACK,
-            xbmcgui.ACTION_STOP,
-        ):
-            self.close_dialog()
+
+        if time.time() - self._opened_at < 0.3:
+            return
+
+        self.close_dialog()
 
     def close_dialog(self):
         self._running = False
+
         try:
             self.close()
         except:
@@ -73,6 +78,11 @@ class TinyPPIDialog(xbmcgui.WindowXMLDialog):
 
 
 def open_tinyppi():
+
+    global DIALOG_LOCK
+
+    if DIALOG_LOCK:
+        return
 
     player = xbmc.Player()
 
@@ -88,7 +98,6 @@ def open_tinyppi():
         xbmc.log("TinyPPI already open", xbmc.LOGINFO)
         return
 
-    # set state
     xbmcgui.Window(10000).setProperty(WINDOW_PROP, "true")
     xbmcgui.Window(10000).setProperty(SKIN_PROP, "true")
 
@@ -104,6 +113,10 @@ def open_tinyppi():
         del dialog
 
     finally:
+        DIALOG_LOCK = True
+        xbmc.Monitor().waitForAbort(0.3)
+        DIALOG_LOCK = False
+
         xbmcgui.Window(10000).clearProperty(WINDOW_PROP)
         xbmcgui.Window(10000).clearProperty(SKIN_PROP)
 
