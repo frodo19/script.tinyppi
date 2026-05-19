@@ -1,6 +1,3 @@
-_FEL_CACHE = {"ts": 0, "fel": None}
-
-
 _VIDEO_CODEC_MAP = {
     "av1": "AV1",
     "avc1": "AVC1",

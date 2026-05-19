@@ -1,7 +1,7 @@
 import re
 import xbmc
 
-from constants import (_FEL_CACHE, _VIDEO_CODEC_MAP, _SUBTITLE_CODEC_MAP, _AUDIO_CODEC_MAP, _CHANNELS_MAP, _CHANNELS_INPUT_MAP, _LANGUAGE_MAP)
+from constants import (_VIDEO_CODEC_MAP, _SUBTITLE_CODEC_MAP, _AUDIO_CODEC_MAP, _CHANNELS_MAP, _CHANNELS_INPUT_MAP, _LANGUAGE_MAP)
 
 def _cond(condition):
     return xbmc.getCondVisibility(condition)
@@ -189,74 +189,33 @@ def get_HdrTypeVar():
 
     val = str(val).lower()
 
-    if "hdr10plus" in val:
+    if "dolbyvision" in val:
+        return "Dolby Vision"
+    if val == "hdr10plus":
         return "HDR10+"
     if "hdr10" in val:
         return "HDR10"
-    if "dolby" in val or "dv" in val:
-        return "Dolby Vision Profile"
     if "hlg" in val:
         return "HLG"
 
-    return val
-
-
-def _get_fel_from_dmesg():
-    import subprocess, time
-    now = time.time()
-    if now - _FEL_CACHE["ts"] < 5:
-        return _FEL_CACHE["fel"]
-    try:
-        out = subprocess.run(
-            ["dmesg"], capture_output=True, text=True, timeout=2
-        ).stdout
-        fel = mel = None
-        for line in reversed(out.splitlines()):
-            if "enable_fel " in line and fel is None:
-                fel = line.split("enable_fel ")[-1].split()[0] == "1"
-            if "enable_mel " in line and mel is None:
-                mel = line.split("enable_mel ")[-1].split()[0] == "1"
-            if fel is not None and mel is not None:
-                break
-        confirmed = fel is True and mel is True
-        _FEL_CACHE.update({"ts": now, "fel": confirmed})
-        return confirmed
-    except Exception:
-        return None
+    return val.upper()
 
 
 def get_HdrDetailVar():
-    raw = _info("VideoPlayer.HdrDetail")
+    val = _info("VideoPlayer.HdrDetail")
 
-    if raw:
-        lines = str(raw).splitlines()
-        out = []
+    if not val:
+        return ""
 
-        for line in lines:
-            line = line.strip()
+    val = str(val).strip()
 
-            match = re.match(r"(\d+)(FEL|MEL)", line)
-            if match:
-                num, typ = match.groups()
+    if val == "7MEL":
+        return "Profile 7 [COLOR orange]MEL[/COLOR]"
+    if val == "7FEL":
+        return "Profile 7 [COLOR lightgreen]FEL[/COLOR]"
 
-                if typ == "FEL":
-                    color = "palegreen"
-                elif typ == "MEL":
-                    color = "orange"
-                else:
-                    color = "white"
+    return f"Profile {val}"
 
-                out.append(f"{num} [COLOR {color}]{typ}[/COLOR]")
-            else:
-                out.append(line)
-
-        return "\n".join(out)
-
-    if "dolby" in str(_info("VideoPlayer.HdrType")).lower():
-        if _get_fel_from_dmesg() is True:
-            return "7 [COLOR palegreen]FEL[/COLOR]"
-
-    return ""
 
 def get_ModeVar():
     val = _info("Player.Process(amlogic.eoft_gamut)")
