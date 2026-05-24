@@ -9,8 +9,22 @@
     <animation effect="fade" end="0" start="100" time="150">WindowClose</animation>
     <controls>
         <control type="group">
-			<!-- Global background -->
+			<!-- Modern background -->
 			<control type="group">
+				<visible>String.IsEqual(Window(10000).Property(TinyPPI.UIStyle),1)</visible>
+				<left>10</left>
+				<top>595</top>
+				<width>1190</width>
+				<height>475</height>
+				<control type="image">
+					<texture border="30" colordiffuse="ffffffff">background.png</texture>
+				</control>
+			</control>
+
+			<!-- Classic background -->
+			<control type="group">
+				<visible>String.IsEqual(Window(10000).Property(TinyPPI.BackgroundToggle),0)</visible>
+				<visible>String.IsEqual(Window(10000).Property(TinyPPI.UIStyle),0)</visible>
 				<top>-1000</top>
 				<width>2000</width>
 				<height>2080</height>
@@ -19,6 +33,7 @@
 				</control>
 			</control>
 			
+			<!-- Codec logos support -->
             <include condition="Skin.HasSetting(ppi.useleftCodecLogos)">CodecLogosLeftOSD</include>
             <include condition="Skin.HasSetting(ppi.usecenterCodecLogos)">CodecLogosCenterOSD</include>
             <include condition="Skin.HasSetting(ppi.userightCodecLogos)">CodecLogosRightOSD</include>
