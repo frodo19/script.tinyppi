@@ -240,15 +240,15 @@ def get_ModeConvertVar():
         result = "-> Dolby Vision Profile 8.1"
         base = "Dolby Vision"
         
-    elif "HDR10+" or "hdr10plus" in val:
+    elif "HDR10+" in val or "hdr10plus" in val:
         result = ""
         base = "HDR10+"
 
-    elif "HDR10" or "hdr10" in val:
+    elif "HDR10" in val or "hdr10" in val:
         result = "-> HDR10"
         base = "HDR10"
 
-    elif "SDR" or "" in val:
+    elif "SDR" in val or "" in val:
         result = "-> SDR"
         base = "SDR"
 
