@@ -15,10 +15,10 @@ REQUIRED_FONTS = [
 
 
 def _findFontXml(skinpath):
-    """Finds the Fonts.xml (or Font.xml) in the skin directory."""
+    """Finds Font.xml in the skin directory, excludes Includes_*.xml"""
     for root, dirs, files in os.walk(skinpath):
         for file in files:
-            if 'Font' in file and file.endswith('.xml'):
+            if file.lower() == 'font.xml':
                 found = os.path.normpath(os.path.join(root, file))
                 xbmc.log(f'[FontInstallMonitor] Font-XML found: {found}', xbmc.LOGINFO)
                 return found
