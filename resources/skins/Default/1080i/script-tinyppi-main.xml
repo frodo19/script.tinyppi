@@ -12,8 +12,8 @@
 			<!-- Modern background -->
 			<control type="group">
 				<visible>String.IsEqual(Window(10000).Property(TinyPPI.UIStyle),1)</visible>
-				<left>10</left>
-				<top>595</top>
+				<left>40</left>
+				<top>565</top>
 				<width>1190</width>
 				<height>475</height>
 				<control type="image">
@@ -39,8 +39,7 @@
             <include condition="Skin.HasSetting(ppi.userightCodecLogos)">CodecLogosRightOSD</include>
 
 			<!-- Group: Bottom screen -->
-			<control type="group">
-				<top>615</top>
+			<control type="group" id="9000">
 				<width>1920</width>
 				<height>0</height>
 
