@@ -302,7 +302,7 @@
 					<control type="label">
 						<left>210</left>
 						<top>60</top>
-						<label>$INFO[Window().Property(HdrTypeVar)] $INFO[Window().Property(HdrDetailVar)] $INFO[Window().Property(ModeConvertVar)]</label>
+						<label>$INFO[Window().Property(HdrTypeVar)] $INFO[Window().Property(HdrDetailVar)]$INFO[Window().Property(ModeConvertVar)]</label>
 						<font>font23_narrow</font>
 						<textcolor>E7EDEDED</textcolor>
 						<aligny>top</aligny>
