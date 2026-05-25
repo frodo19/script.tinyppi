@@ -55,6 +55,10 @@ msgctxt "#32011"
 msgid "This option removes the gradient background in TinyPPI."
 msgstr "Diese Option entfernt den Verlaufshintergrund in TinyPPI."
 
+msgctxt "#32012"
+msgid "720p skins are not supported"
+msgstr "720p Skins werden nicht unterstützt"
+
 msgctxt "#32013"
 msgid "Playback time"
 msgstr "Wiedergabezeit"
