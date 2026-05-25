@@ -606,8 +606,19 @@
 						<aligny>top</aligny>
 					</control>
 					<control type="label">
+						<visible>String.IsEqual(Window(10000).Property(TinyPPI.UIStyle),0)</visible>
 						<top>60</top>
 						<left>240</left>
+						<label>$INFO[System.CPUTemperature] | $INFO[Window().Property(CpuUsageVar)]</label>
+						<font>font23_narrow</font>
+						<textcolor>e7ededed</textcolor>
+						<aligny>top</aligny>
+					</control>
+					<control type="label">
+						<visible>String.IsEqual(Window(10000).Property(TinyPPI.UIStyle),1)</visible>
+						<top>60</top>
+						<left>240</left>
+						<width>305</width>
 						<label>$INFO[System.CPUTemperature] | $INFO[Window().Property(CpuUsageVar)]</label>
 						<font>font23_narrow</font>
 						<textcolor>e7ededed</textcolor>
@@ -683,7 +694,7 @@
 						<control type="progress">
 							<top>0</top>
 							<left>0</left>
-							<width>203</width>
+							<width>235</width>
 							<height>8</height>
 							<description>BAR</description>
 							<centertop>50%</centertop>
