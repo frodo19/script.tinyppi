@@ -596,7 +596,7 @@ def format_fps():
 
     text = f"{in_fps:03d} - {drop:03d}"
 
-    return text, str(int(out_fps) if out_fps > 0 else "")
+    return text, str(int(out_fps) if out_fps > 0 else "0")
 
 
 # ---------------------------------------------------------------------------
